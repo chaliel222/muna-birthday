@@ -423,7 +423,7 @@ openBtn.addEventListener(
            can be played.
         */
 
-        if (now < birthdayDate) {
+        if (false) {
 
             playPreBirthdaySound();
 
