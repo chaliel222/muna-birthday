@@ -1,6 +1,8 @@
 const slides = document.querySelectorAll(".slide");
 
 const openBtn = document.getElementById("openBtn");
+const buttonNote = document.getElementById("buttonNote");
+
 const continueBtn = document.getElementById("continueBtn");
 const nextBtn = document.getElementById("nextBtn");
 
@@ -72,12 +74,11 @@ let hbdTimer = null;
 ========================= */
 
 /*
-   IMPORTANT:
-   This uses the browser's local time.
-
    Birthday:
    September 1, 2026
    00:00:00
+
+   Uses browser local time.
 */
 
 const birthdayDate =
@@ -99,13 +100,13 @@ function stopAudio(audio) {
     } catch (error) {
         console.log(error);
     }
+
 }
 
 
 function playOnce(audio) {
 
     if (!audio) return;
-
 
     audio.pause();
 
@@ -117,10 +118,8 @@ function playOnce(audio) {
 
     audio.volume = 1;
 
-
     const playPromise =
         audio.play();
-
 
     if (playPromise !== undefined) {
 
@@ -139,14 +138,52 @@ function playOnce(audio) {
 
 
 /* =========================
-   PRE-BIRTHDAY SOUNDS
+   PRE-BIRTHDAY BUTTON
 ========================= */
+
+/*
+   SYSTEM:
+
+   CLICK 1
+   comeback
+   "comeback on 1 sep my cute ducky"
+
+   CLICK 2
+   donot
+   "do not reapet it again"
+
+   CLICK 3
+   wth
+   "😡😡😡"
+
+   CLICK 4
+   wth
+   "😡😡😡"
+
+   CLICK 5
+   comeback
+   "comeback on 1 sep my cute ducky"
+
+   CLICK 6
+   donot
+   "do not reapet it again"
+
+   CLICK 7
+   wth
+   "😡😡😡"
+
+   CLICK 8
+   wth
+   "😡😡😡"
+
+   Then repeats forever.
+*/
 
 function playPreBirthdaySound() {
 
     /*
-       Stop the previous
-       pre-birthday sound first.
+       Stop every previous
+       pre-birthday sound.
     */
 
     stopAudio(comebackAudio);
@@ -154,41 +191,73 @@ function playPreBirthdaySound() {
     stopAudio(wthAudio);
 
 
+    /*
+       Increase click counter.
+    */
+
     openClickCount++;
 
 
     /*
-       CLICK 1
-       comeback.mp3
+       Convert the click count
+       into a 1-4 repeating cycle.
+
+       1 → 1
+       2 → 2
+       3 → 3
+       4 → 4
+       5 → 1
+       6 → 2
+       7 → 3
+       8 → 4
+       etc.
     */
 
-    if (openClickCount === 1) {
+    const cyclePosition =
+        ((openClickCount - 1) % 4) + 1;
+
+
+    /* =========================
+       CLICK 1 / 5 / 9 / ...
+       COMEBACK
+    ========================== */
+
+    if (cyclePosition === 1) {
 
         playOnce(comebackAudio);
 
+        buttonNote.textContent =
+            "comeback on 1 sep my cute ducky";
+
     }
 
 
-    /*
-       CLICK 2
-       donot.mp3
-    */
+    /* =========================
+       CLICK 2 / 6 / 10 / ...
+       DONOT
+    ========================== */
 
-    else if (openClickCount === 2) {
+    else if (cyclePosition === 2) {
 
         playOnce(donotAudio);
 
+        buttonNote.textContent =
+            "do not repeat again";
+
     }
 
 
-    /*
-       CLICK 3+
-       wth.mp3
-    */
+    /* =========================
+       CLICK 3 / 4 / 7 / 8 / ...
+       WTH
+    ========================== */
 
     else {
 
         playOnce(wthAudio);
+
+        buttonNote.textContent =
+            "😡😡😡";
 
     }
 
@@ -204,9 +273,7 @@ function startFireSound() {
 
     if (!fireAudio) return;
 
-
     clearInterval(fireFadeTimer);
-
 
     fireAudio.loop = true;
 
@@ -217,7 +284,6 @@ function startFireSound() {
 
     const playPromise =
         fireAudio.play();
-
 
     if (playPromise !== undefined) {
 
@@ -247,7 +313,6 @@ function startFireSound() {
         setInterval(() => {
 
             step++;
-
 
             fireAudio.volume =
                 Math.min(
@@ -280,7 +345,6 @@ function fadeOutFire() {
 
     if (!fireAudio) return;
 
-
     clearInterval(fireFadeTimer);
 
     fireFadeTimer = null;
@@ -288,7 +352,6 @@ function fadeOutFire() {
 
     const startVolume =
         fireAudio.volume;
-
 
     const fadeDuration = 1200;
 
@@ -385,7 +448,7 @@ function showSlide(index) {
     /*
        Slide 2:
        Start fire sound
-       if candle is still alive.
+       while candle is alive.
     */
 
     if (
@@ -415,12 +478,12 @@ openBtn.addEventListener(
         /*
            BEFORE SEPTEMBER 1
            ==================
-           Keep Slide 1 locked.
 
-           The click itself is still
-           intentionally accepted so
-           the pre-birthday sounds
-           can be played.
+           The button stays locked.
+
+           But it STILL accepts clicks
+           so the pre-birthday sounds
+           and messages can work.
         */
 
         if (now < birthdayDate) {
@@ -435,6 +498,7 @@ openBtn.addEventListener(
         /*
            SEPTEMBER 1+
            ==============
+
            Open Slide 2.
         */
 
@@ -487,7 +551,9 @@ updateOpenButton();
 
 
 /*
-   Check every second.
+   Check every second
+   so the button automatically
+   unlocks at midnight.
 */
 
 setInterval(
